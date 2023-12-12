@@ -78,7 +78,12 @@ WSGI_APPLICATION = 'todoapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'todoapp',
+        'USER': 'fish',
+        'PASSWORD': '12345',
+        'HOST': 'todoapp',
+        'PORT': '5432',
+
     }
 }
 
