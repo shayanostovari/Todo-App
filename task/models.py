@@ -10,3 +10,4 @@ class Task(BaseModel):
     title = models.TextField()
     description = models.TextField()
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='tasks')
+    is_done = models.BooleanField()
