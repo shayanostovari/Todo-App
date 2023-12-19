@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
     'reminder.apps.ReminderConfig',
     'user.apps.UserConfig',
+
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
