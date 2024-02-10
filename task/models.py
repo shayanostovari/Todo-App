@@ -20,4 +20,4 @@ class Task(BaseModel):
     description = models.TextField()
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='tasks')
     is_done = models.BooleanField(default=False)
-    priority = models.PositiveSmallIntegerField(choices=priority_level, default=None)
+    priority = models.PositiveSmallIntegerField(choices=priority_level, default=MIDDLE)
