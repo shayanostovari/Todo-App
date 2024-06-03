@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
     'reminder.apps.ReminderConfig',
     'user.apps.UserConfig',
-
     'rest_framework',
     'rest_framework_simplejwt',
 ]

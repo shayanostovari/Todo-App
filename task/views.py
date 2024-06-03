@@ -1,12 +1,14 @@
 from django.shortcuts import render
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, UpdateAPIView, RetrieveUpdateAPIView, \
-    RetrieveAPIView, DestroyAPIView
+    RetrieveAPIView, DestroyAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from task.models import Task
-from task.serializers import TaskCreateSerializer, TaskUpdateSerializer, TaskListSerializer, TaskRetrieveSerializer
+from task.serializers import TaskCreateSerializer, TaskUpdateSerializer, TaskListSerializer, \
+    TaskRetrieveDeleteSerializer, TaskRetrieveSerializer
 
 
 class TaskCreateApiView(CreateAPIView):
@@ -51,9 +53,9 @@ class TaskUpdateApiView(RetrieveUpdateAPIView):
         serializer.save(user=self.request.user)
 
 
-class TaskDeleteApiView(DestroyAPIView):
+class TaskDeleteApiView(RetrieveDestroyAPIView):
     queryset = Task.objects.all()
-    serializer_class = TaskUpdateSerializer
+    serializer_class = TaskRetrieveDeleteSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
