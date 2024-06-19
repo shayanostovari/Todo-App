@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework.generics import ListAPIView, CreateAPIView
 
-# Create your views here.
+from reminder.models import Reminder
+from reminder.serializers import ReminderSerializer
+
+
+class ReminderCreateApiView(CreateAPIView):
+    queryset = Reminder.objects.all()
+    serializer_class = ReminderSerializer

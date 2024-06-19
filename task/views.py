@@ -6,6 +6,7 @@ from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIVie
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
+from lib.permissions import SelfUserPermission
 from task.models import Task
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer, TaskListSerializer, \
     TaskRetrieveDeleteSerializer, TaskRetrieveSerializer
@@ -23,7 +24,7 @@ class TaskCreateApiView(CreateAPIView):
 class TaskListApiView(ListAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskListSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, SelfUserPermission)
 
     def get_queryset(self):
         qs = super().get_queryset()
