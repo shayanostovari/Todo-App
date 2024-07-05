@@ -21,3 +21,4 @@ class Task(BaseModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='tasks')
     is_done = models.BooleanField(default=False)
     priority = models.PositiveSmallIntegerField(choices=priority_level, default=MIDDLE)
+    reminder_time = models.DateTimeField(null=True, blank=True)

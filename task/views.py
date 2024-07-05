@@ -1,16 +1,11 @@
+# views.py
 from django.shortcuts import render
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, UpdateAPIView, RetrieveUpdateAPIView, \
-    RetrieveAPIView, DestroyAPIView, RetrieveDestroyAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-
-from lib.permissions import SelfUserPermission
 from task.models import Task
-from task.serializers import TaskCreateSerializer, TaskUpdateSerializer, TaskListSerializer, \
-    TaskRetrieveDeleteSerializer, TaskRetrieveSerializer
-
+from task.serializers import TaskCreateSerializer, TaskUpdateSerializer, TaskListSerializer, TaskRetrieveDeleteSerializer, TaskRetrieveSerializer
+from reminder.email import send_reminder_email
+from reminder.models import Reminder
 
 class TaskCreateApiView(CreateAPIView):
     queryset = Task.objects.all()
@@ -18,18 +13,20 @@ class TaskCreateApiView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+        task = serializer.save(user=self.request.user)
+        if task.reminder_time:
+            # Create Reminder
+            Reminder.objects.create(task=task, reminder_time=task.reminder_time, user=task.user)
+            # Schedule reminder email
+            send_reminder_email.apply_async((task.id,), eta=task.reminder_time)
 
 class TaskListApiView(ListAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskListSerializer
-    permission_classes = (IsAuthenticated, SelfUserPermission)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
-
+        return super().get_queryset().filter(user=self.request.user)
 
 class TaskRetrieveApiView(RetrieveAPIView):
     queryset = Task.objects.all()
@@ -37,22 +34,26 @@ class TaskRetrieveApiView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
-
+        return super().get_queryset().filter(user=self.request.user)
 
 class TaskUpdateApiView(RetrieveUpdateAPIView):
     queryset = Task.objects.all()
-    serializer_class = TaskListSerializer
+    serializer_class = TaskUpdateSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
+        return super().get_queryset().filter(user=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(user=self.request.user)
-
+        task = serializer.save()
+        if task.reminder_time:
+            # Update or Create Reminder
+            reminder, created = Reminder.objects.update_or_create(
+                task=task,
+                defaults={'reminder_time': task.reminder_time, 'user': task.user}
+            )
+            # Schedule reminder email
+            send_reminder_email.apply_async((task.id,), eta=task.reminder_time)
 
 class TaskDeleteApiView(RetrieveDestroyAPIView):
     queryset = Task.objects.all()
@@ -60,5 +61,9 @@ class TaskDeleteApiView(RetrieveDestroyAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
+        return super().get_queryset().filter(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        # Delete associated reminders
+        Reminder.objects.filter(task=instance).delete()
+        super().perform_destroy(instance)

@@ -6,7 +6,7 @@ from user.serializers import UserSerializer
 class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'description', 'priority')
+        fields = ('title', 'description', 'priority', 'reminder_time')
 
     def validate_description(self, attr):
         if len(attr) >= 50:
@@ -23,13 +23,13 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 class TaskRetrieveDeleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'description', 'priority', 'is_done')
+        fields = ('title', 'description', 'priority', 'is_done', 'reminder_time')
 
 
 class TaskUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('title', 'description', 'priority', 'is_done')
+        fields = ('title', 'description', 'priority', 'is_done', 'reminder_time')
 
     def validate_description(self, attr):
         if len(attr) >= 50:
