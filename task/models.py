@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 from lib.base_model import BaseModel
 
+
 User = get_user_model()
 
 
@@ -22,3 +23,5 @@ class Task(BaseModel):
     is_done = models.BooleanField(default=False)
     priority = models.PositiveSmallIntegerField(choices=priority_level, default=MIDDLE)
     reminder_time = models.DateTimeField(null=True, blank=True)
+
+

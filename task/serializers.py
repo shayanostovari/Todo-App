@@ -1,12 +1,27 @@
 from rest_framework import serializers
+
+from reminder.models import Reminder
 from task.models import Task
 from user.serializers import UserSerializer
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):
+    reminder_type = serializers.ChoiceField(choices=Reminder.reminder_type_choices, write_only=True)
+
     class Meta:
         model = Task
-        fields = ('title', 'description', 'priority', 'reminder_time')
+        fields = ('title', 'description', 'priority', 'reminder_type', 'reminder_time',)
+
+    def create(self, validated_data):
+        reminder_type = validated_data.pop('reminder_type')
+        task = Task.objects.create(**validated_data)
+        Reminder.objects.create(
+            task=task,
+            reminder_time=task.reminder_time,
+            user=task.user,
+            reminder_type=reminder_type
+        )
+        return task
 
     def validate_description(self, attr):
         if len(attr) >= 50:

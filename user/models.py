@@ -22,6 +22,7 @@ class User(BaseModel, AbstractUser):
     first_name = models.CharField(_("first name"), max_length=150, blank=True)
     last_name = models.CharField(_("last name"), max_length=150, blank=True)
     email = models.EmailField(_("email address"), blank=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
