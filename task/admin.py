@@ -1,9 +1,18 @@
 from django.contrib import admin
 from task.models import Task
-from django.contrib.admin import register
+from reminder.models import Reminder
 
 
-@register(Task)
+class ReminderInline(admin.TabularInline):
+    model = Reminder
+    extra = 1
+
+
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'title', 'description', 'is_done', 'priority', 'reminder_time')
-    list_filter = ('is_done', 'priority')
+    list_display = ('title', 'description', 'user', 'is_done', 'priority', 'reminder_time')
+    list_filter = ('priority', 'is_done', 'reminder_time')
+    search_fields = ('title', 'description', 'user__username')
+    inlines = [ReminderInline]
+
+
+admin.site.register(Task, TaskAdmin)

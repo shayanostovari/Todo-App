@@ -42,9 +42,11 @@ class TaskRetrieveDeleteSerializer(serializers.ModelSerializer):
 
 
 class TaskUpdateSerializer(serializers.ModelSerializer):
+    reminder_type = serializers.ChoiceField(choices=Reminder.reminder_type_choices, write_only=True)
+
     class Meta:
         model = Task
-        fields = ('title', 'description', 'priority', 'is_done', 'reminder_time')
+        fields = ('title', 'description', 'priority', 'is_done',  'reminder_type', 'reminder_time',)
 
     def validate_description(self, attr):
         if len(attr) >= 50:

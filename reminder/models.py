@@ -5,6 +5,7 @@ from task.models import Task
 
 User = get_user_model()
 
+
 class Reminder(BaseModel):
     EMAIL = 1
     SMS = 2

@@ -1,11 +1,10 @@
-# reminder/sms.py
-
 from celery import shared_task
 from kavenegar import KavenegarAPI
 from django.utils import timezone
 from reminder.models import Reminder
 from todoapp.local_setting import KAVENEGAR_API
 import pytz
+
 
 @shared_task
 def send_sms_reminder(reminder_id):
@@ -17,7 +16,7 @@ def send_sms_reminder(reminder_id):
             api = KavenegarAPI(KAVENEGAR_API)
             params = {
                 'sender': '1000689696',
-                'receptor': reminder.user.phone_number,  # Use the user's phone number
+                'receptor': reminder.user.phone_number,  # Ensure user model has phone_number field
                 'message': f'Reminder: {reminder.task.title} - {reminder.task.description}',
             }
             response = api.sms_send(params)
@@ -26,6 +25,7 @@ def send_sms_reminder(reminder_id):
             reminder.save()
     except Reminder.DoesNotExist:
         pass
+
 
 @shared_task
 def check_sms_reminders():

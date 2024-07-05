@@ -1,10 +1,9 @@
-# reminder/email.py
-
 from celery import shared_task
 from django.core.mail import send_mail
 from django.utils import timezone
 from reminder.models import Reminder
 import pytz
+
 
 @shared_task
 def send_reminder_email(reminder_id):
@@ -16,7 +15,7 @@ def send_reminder_email(reminder_id):
             send_mail(
                 subject=f'Reminder: {reminder.task.title}',
                 message=reminder.task.description,
-                from_email='your_email@example.com',
+                from_email='shayan.work.python@gmail.com',
                 recipient_list=[reminder.user.email],
                 fail_silently=False,
             )
@@ -25,10 +24,12 @@ def send_reminder_email(reminder_id):
     except Reminder.DoesNotExist:
         pass
 
+
 @shared_task
 def check_reminders():
     tehran_tz = pytz.timezone('Asia/Tehran')
     now = timezone.now().astimezone(tehran_tz)
     reminders = Reminder.objects.filter(reminder_time__lte=now, is_sent=False)
     for reminder in reminders:
-        send_reminder_email.delay(reminder.id)
+        if reminder.reminder_type == Reminder.EMAIL:
+            send_reminder_email.delay(reminder.id)

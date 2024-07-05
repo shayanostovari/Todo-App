@@ -1,4 +1,3 @@
-# views.py
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, \
     RetrieveDestroyAPIView
@@ -17,17 +16,9 @@ class TaskCreateApiView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        reminder_type = self.request.data.get('reminder_type')
         task = serializer.save(user=self.request.user)
-
+        reminder = task.reminders.first()
         if task.reminder_time:
-            reminder = Reminder.objects.create(
-                task=task,
-                reminder_time=task.reminder_time,
-                user=task.user,
-                reminder_type=reminder_type
-            )
-
             if reminder.reminder_type == Reminder.EMAIL:
                 send_reminder_email.apply_async((reminder.id,), eta=task.reminder_time)
             elif reminder.reminder_type == Reminder.SMS:
@@ -67,7 +58,10 @@ class TaskUpdateApiView(RetrieveUpdateAPIView):
                 task=task,
                 defaults={'reminder_time': task.reminder_time, 'user': task.user}
             )
-            send_reminder_email.apply_async((task.id,), eta=task.reminder_time)
+            if reminder.reminder_type == Reminder.EMAIL:
+                send_reminder_email.apply_async((reminder.id,), eta=task.reminder_time)
+            elif reminder.reminder_type == Reminder.SMS:
+                send_sms_reminder.apply_async((reminder.id,), eta=task.reminder_time)
 
 
 class TaskDeleteApiView(RetrieveDestroyAPIView):

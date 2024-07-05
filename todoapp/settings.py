@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
     'task.apps.TaskConfig',
     'reminder.apps.ReminderConfig',
     'user.apps.UserConfig',
